@@ -4,7 +4,8 @@
   "description": "Employee Directory and Branch Management API assignment",
   "main": "index.js",
   "scripts":{
-    "start": "ts-node-dev src/server.ts",
+    "dev": "ts-node-dev src/server.ts",
+    "start": "node dist/server.js",
     "build": "tsc",
     "test": "jest"
   },
