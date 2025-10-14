@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Employee Directory and Branch Management API assignment",
   "main": "index.js",
-  "scripts":{
+  "scripts": {
     "dev": "ts-node-dev src/server.ts",
     "start": "node dist/server.js",
     "build": "tsc",
@@ -22,11 +22,14 @@
   "homepage": "https://github.com/rsharma722/Backend_Assignment_02#readme",
   "dependencies": {
     "express": "^5.1.0",
+    "firebase-admin": "^13.5.0",
+    "joi": "^18.0.1",
     "morgan": "^1.10.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
+    "@types/joi": "^17.2.2",
     "@types/morgan": "^1.9.10",
     "@types/node": "^24.6.1",
     "@types/supertest": "^6.0.3",
@@ -34,7 +37,7 @@
     "jest": "^30.2.0",
     "nodemon": "^3.1.10",
     "supertest": "^7.1.4",
-    "ts-jest": "^29.4.4",
+    "ts-jest": "^29.4.5",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
