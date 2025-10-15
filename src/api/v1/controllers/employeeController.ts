@@ -2,50 +2,128 @@ import { Request, Response } from "express";
 import { HTTP_STATUS } from "../../../constants/httpConstants";
 import * as svc from "../services/employeeService";
 
-export const createEmployee = (req: Request, res: Response) => {
-    const { name, position, department, email, phone, branchId } = req.body || {};
-    if (!name || !position || !department || !email || !phone || branchId == null) {
-        return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Missing required fields" });
+const isNumeric = (v?: string) => !!v && /^\d+$/.test(v);
+
+export const createEmployee = async (req: Request, res: Response) => {
+  try {
+    const emp = await svc.create(req.body); 
+    return res.status(HTTP_STATUS.CREATED).json(emp);
+  } catch {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to create employee" });
+  }
+};
+
+export const getAllEmployees = async (_req: Request, res: Response) => {
+  try {
+    const employees = await svc.getAll();
+    return res.status(HTTP_STATUS.OK).json(employees);
+  } catch {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to fetch employees" });
+  }
+};
+
+export const getEmployeeById = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    if (!isNumeric(id)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Invalid id" });
     }
-    const emp = svc.create({ name, position, department, email, phone, branchId });
-    res.status(HTTP_STATUS.CREATED).json(emp);
+
+    const emp = await svc.getById(id);
+    if (!emp) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: "Employee not found" });
+    }
+
+    return res.status(HTTP_STATUS.OK).json({ ...emp, id: Number(emp.id) });
+  } catch {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to get employee" });
+  }
 };
 
-export const getAllEmployees = (_req: Request, res: Response) =>
-    res.status(HTTP_STATUS.OK).json(svc.getAll());
+export const updateEmployee = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    if (!isNumeric(id)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Invalid id" });
+    }
 
-export const getEmployeeById = (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Invalid id" });
-    const emp = svc.getById(id);
-    if (!emp) return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Employee not found" });
-    res.status(HTTP_STATUS.OK).json(emp);
+    const updated = await svc.update(id, req.body || {});
+    if (!updated) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: "Employee not found" });
+    }
+
+    return res.status(HTTP_STATUS.OK).json({ ...updated, id: Number(updated.id) });
+  } catch {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to update employee" });
+  }
 };
 
-export const updateEmployee = (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Invalid id" });
-    const updated = svc.update(id, req.body || {});
-    if (!updated) return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Employee not found" });
-    res.status(HTTP_STATUS.OK).json(updated);
+export const deleteEmployee = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id;
+    if (!isNumeric(id)) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Invalid id" });
+    }
+
+    const ok = await svc.remove(id);
+    if (!ok) {
+      return res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: "Employee not found" });
+    }
+
+    return res.status(HTTP_STATUS.OK).json({ message: "Employee deleted" });
+  } catch {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to delete employee" });
+  }
 };
 
-export const deleteEmployee = (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-    if (Number.isNaN(id)) return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Invalid id" });
-    const ok = svc.remove(id);
-    if (!ok) return res.status(HTTP_STATUS.NOT_FOUND).json({ error: "Employee not found" });
-    res.status(HTTP_STATUS.OK).json({ message: "Employee deleted" });
+export const getEmployeesForBranch = async (req: Request, res: Response) => {
+  try {
+    const branchId = req.params.branchId;
+    if (!isNumeric(branchId)) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: "Invalid branch id" });
+    }
+
+    const list = await svc.byBranch(branchId);
+    return res.status(HTTP_STATUS.OK).json(list);
+  } catch {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to fetch employees by branch" });
+  }
 };
 
-export const getEmployeesForBranch = (req: Request, res: Response) => {
-    const branchId = Number(req.params.branchId);
-    if (Number.isNaN(branchId)) return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Invalid branch id" });
-    res.status(HTTP_STATUS.OK).json(svc.byBranch(branchId));
-};
-
-export const getEmployeesByDepartment = (req: Request, res: Response) => {
+export const getEmployeesByDepartment = async (req: Request, res: Response) => {
+  try {
     const dept = req.params.department;
-    if (!dept) return res.status(HTTP_STATUS.BAD_REQUEST).json({ error: "Missing department" });
-    res.status(HTTP_STATUS.OK).json(svc.byDepartment(dept));
+    if (!dept) {
+      return res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: "Missing department" });
+    }
+
+    const list = await svc.byDepartment(dept);
+    return res.status(HTTP_STATUS.OK).json(list);
+  } catch {
+    return res
+      .status(HTTP_STATUS.INTERNAL_SERVER_ERROR)
+      .json({ error: "Failed to fetch employees by department" });
+  }
 };
