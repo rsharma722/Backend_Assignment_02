@@ -2,9 +2,9 @@ import { Request, Response, NextFunction } from "express";
 import Joi from "joi";
 
 type Schemas = Partial<{
-  body: Joi.ObjectSchema<any>;
-  params: Joi.ObjectSchema<any>;
-  query: Joi.ObjectSchema<any>;
+    body: Joi.ObjectSchema<any>;
+    params: Joi.ObjectSchema<any>;
+    query: Joi.ObjectSchema<any>;
 }>;
 
 export const validateRequest = (schemas: Schemas) =>

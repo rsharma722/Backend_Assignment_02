@@ -1,9 +1,9 @@
 import { Router } from "express";
 import * as c from "../controllers/employeeController";
 import { validate } from "../middleware/validate";
-import {
-  createEmployeeSchema,
-  updateEmployeeSchema,
+    import {
+    createEmployeeSchema,
+    updateEmployeeSchema,
 } from "../validation/employee.schema";
 
 const router = Router();
