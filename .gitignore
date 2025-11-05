@@ -3,3 +3,11 @@ dist
 coverage
 .env
 Service_Key.json
+firebase-service-account.json
+openapi.json
+docs
+.DS_Store
+Thumbs.db
+*.log
+*.tsbuildinfo
+.env.local
