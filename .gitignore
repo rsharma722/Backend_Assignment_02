@@ -5,7 +5,7 @@ coverage
 Service_Key.json
 firebase-service-account.json
 openapi.json
-docs
+#docs
 .DS_Store
 Thumbs.db
 *.log
